@@ -1,0 +1,118 @@
+# Query-Modeling-for-Click-Data
+
+
+
+
+
+This is the code for the Click data based Query Merging alogrithm.
+
+
+
+AUTHORS:
+Min Tan <tanmin@hdu.edu.cn>
+
+
+INTRODUCTION
+------------
+This package contains the MATLAB code for click feature exaction and hot-query based clustering.
+
+The software included here implements the algorithm described in
+
+[1] Weichen WU, Min Tan, Jun Yu, Guangjian Zheng. 
+   Query Modeling for Click Data based Image Recognition using Graph based Propagation and Sparse Coding. 
+   International Conference on Internet Multimedia Computing and Service 2017.
+
+
+
+
+INSTALLATION
+------------
+
+1. Requirements
+
+This software requires MATLAB R2007a or later.  Because it makes extensive use
+of the "bsxfun" function, earlier versions of Matlab will not work.
+
+
+2. Running the demo
+
+
+
+
+
+NOTE:
+1).Related figure and results are saved in '/path\\result'
+2).Related data are saved in '/path\\data'
+3).The text feature for queries are saved in "/path/TextFea\image_click_Dog283_0_QueryFea"
+4).The image clustering result is saved in "/path/ImgC"
+
+
+
+3. Important functions
+MAIN FUNCTION - COMPUTE ACCURACY
+--------
+acc = get_acc(method,theta,alpha,P,i_Distype,cluster_method, type, T, gamma, textweight,normweight,SetUsePGNc,k_cluster_Q)
+%      method         = method for determing cluster number in each category
+%         N           : cluster number
+%         P           : sample number in each cluster
+%      theta          = parameter controlling cluster approach, when N>theta,sparse coding; while N<theta, K-means
+%      alpha          = propagate ratio
+%      P              = parameter for determing dictionary size = N_k*P
+%      i_Distype        = similarity functions on distance
+%         1           : Sim = exp(-dist)
+%         2           : Sim = 1./dist
+%         3           : dist = mapminmax(dist(:),0,1)  & sim = exp(-dist)
+%         4           : dist = mapminmax(dist(:),0,1)  & sim = 1./dist
+%      cluster_method = query clustering method
+%        1            : K-means
+%        2            : hot query+sparse coding 
+%        3            : KSVD+sparse coding
+%      type           = propagation type
+%        'WP'         : weighted propagation 
+%        'EP'         : evenly propagation
+%      T              = number of zero-item in sparse code coefficiences
+%      gamma              
+%      , textweight,           
+%      normweight,              
+%      SetUsePGNc            
+       ,k_cluster_Q  
+       
+       acc
+
+
+
+QUERY MERGING
+--------
+IDX = mergeQ(sname, method,theta,alpha,P,Distype,cluster_method,type, T,gamma, textweight,normweight,k_cluster_Q)
+{
+	功能：将query合并，得到每个query的聚类结果IDX
+	mergeQ中的参数由get_acc传入，补充参数功能如下
+	
+	gamma:字典维度在总体样本中占到的比率
+	normweight:选择归一化方式，1为L1,2为L2
+	k_cluster_Q:相同LABEL聚类过程中，每个小类的数量上限	
+}
+
+关键函数Myclustering(temp_QueryFea,Keachone_query,i,cluster_method,gamma,P,theta,T, textweight,normweight,ClickCount)
+{
+	功能：聚类函数，通过cluster_method参数控制聚类方法获得相同LABEL类下的分类结果，从而降低数据维度
+	
+	temp_QueryFea:当前需要分类的数据块
+	Keachone_query:此类中的聚类个数，从mergeQ中引入
+	i：同上，控制聚类个数，作为Keachone_query的具体索引
+	textweight:控制文本特征在综合特征(文本相似度+点击特征)中的权重
+	ClickCount:中间变量，用于处理temp_QueryFea的分类问题
+}
+
+示例程序:demo:展示一些论文结果
+
+
+CLICK PROPAGATION
+--------
+PropagatedVector_W = GetPropagate_W( OriginalVector, alpha, dist, clusterRange, Distype)
+
+
+QUERY CLUSTERING BASED ON CLICK FEATURE
+--------
+[cluster_vector,cluster_idx_q] = Myclustering(temp_QueryFea,...
+    Keachone_query,i,cluster_method,gamma,P,theta,T, textweight,normweight,ClickCount)

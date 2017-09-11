@@ -1,0 +1,150 @@
+global isFortest;
+if ~exist('istest', 'var')
+    isFortest = 0;
+else
+    isFortest = istest;
+end
+% % % % %%%%\gamma where
+% % % % %1.propagated click feature with varying \alpha
+% % % % mkdir('result');
+% % % % theta = Inf;method = 'N';P = 1;cluster_method = 1;gamma = 0.4 ; 
+% % % % i_alpha = 0;i_Distype = 1;
+% % % % i = 0;acc = [];
+% % % % i = i+1;acc(i) = get_acc(method,theta,i_alpha,P,i_Distype,cluster_method, 'O',1,gamma,1,1);
+% % % % i = i+1;acc(i) = get_acc(method,theta,i_alpha,P,i_Distype,cluster_method, 'C',1,gamma,1,1);
+% % % % Rresult = acc;
+% % % % 
+% % % % 
+% % % % alpha = [-0.8:0.2:0.8];Distype = [1:4];
+% % % % i = 0;acc = [];
+% % % % for i_Distype = Distype
+% % % % for i_alpha = alpha
+% % % %     i_alpha
+% % % %     i = i+1;acc(i) = get_acc(method,theta,i_alpha,P,i_Distype,cluster_method, 'WP',1,gamma,1,1);
+% % % % end
+% % % % end
+% % % % result = reshape(acc, [length(alpha), length(Distype)]);
+% % % % [Mresult, ind] = max(result(:));[x,y] = ind2sub(size(result), ind);
+% % % % 
+% % % % 
+% % % % alpha = [-0.8:0.1:0.8];Distype = [1];
+% % % % i = 0;acc = [];
+% % % % for i_Distype = Distype
+% % % % for i_alpha = alpha
+% % % %     i_alpha
+% % % %     i = i+1;acc(i) = get_acc(method,theta,i_alpha,P,i_Distype,cluster_method, 'P',1,gamma,1,1);
+% % % %     i = i+1;acc(i) = get_acc(method,theta,i_alpha,P,i_Distype,cluster_method, 'WP',1,gamma,1,1);
+% % % % end
+% % % % end
+% % % % result = reshape(acc(1:2:end), [length(alpha), length(Distype)]);
+% % % % [Mresult, ind] = max(result(:));[x,y] = ind2sub(size(result), ind);
+% % % % Rresult = [Rresult, Mresult];
+% % % % 
+% % % % result = reshape(acc(2:2:end), [length(alpha), length(Distype)]);
+% % % % [Mresult, ind] = max(result(:));[x,y] = ind2sub(size(result), ind);
+% % % % Rresult = [Rresult, Mresult];
+% % % % 
+% % % % 
+% % % % alpha = alpha(x);Distype = Distype(y);
+
+
+
+
+%%%%FOR part 2, PLEASE SET ,alpha  &  Distype 
+
+% % % % %2.P and T for hot-query + sparse coding
+% % % % theta = 600;method = 'N';cluster_method = [2];normweight = [1,2];alpha = [0.8]; Distype = [1];
+% % % % P = [1:5];T = [0.02, 0.04, 0.06];textweight = [0, 0.2, 0.5, 0.8, 1];gamma =[0.1:0.1:0.3]; 
+% % % % i = 0;acc = [];
+% % % % for i_P = P
+% % % % %     i_P
+% % % %     for i_T = T
+% % % % %         i_T
+% % % %         for i_gamma = gamma
+% % % % %             i_gamma
+% % % %             for i_textweight = textweight%%%%FOR BIGGER
+% % % %                 for i_normweight = normweight
+% % % %                 i = i+1;
+% % % %                 acc(i) = get_acc(method,theta,alpha,i_P,Distype,cluster_method, 'WP',i_T, i_gamma, i_textweight,i_normweight);
+% % % %                 end
+% % % %             end
+% % % %         end
+% % % %     end
+% % % % end
+% % % % result = reshape(acc, [length(normweight),length(textweight), length(gamma), length(T), length(P)]);
+% % % % [Mresult, ind] = max(result(:));[u, x,y,z,w] = ind2sub(size(result), ind);
+% % % % normweight = normweight(u);textweight = textweight(x);gamma = gamma(y);T = T(z);P = P(w);
+
+
+
+
+
+%2.P and T for hot-query + sparse coding
+theta = 600;method = 'N';cluster_method = [2];alpha = [0.8]; Distype = [1];textweight = [1];
+P = [1,3,5,8,10];T = [0.02, 0.04, 0.06];gamma =[0.05 0.1:0.1:0.3]; normweight = [1 2];
+i = 0;acc = [];
+for i_P = P
+%     i_P
+    for i_T = T
+%         i_T
+        for i_gamma = gamma
+%             i_gamma
+            for i_textweight = textweight%%%%FOR BIGGER
+                for i_normweight = normweight
+                i = i+1;
+                acc(i) = get_acc(method,theta,alpha,i_P,Distype,cluster_method, 'WP',i_T, i_gamma, i_textweight,i_normweight);
+                end
+            end
+        end
+    end
+end
+result = reshape(acc, [length(normweight),length(textweight), length(gamma), length(T), length(P)]);
+[Mresult, ind] = max(result(:));[u, x,y,z,w] = ind2sub(size(result), ind);
+normweight = normweight(u);textweight = textweight(x);gamma = gamma(y);T = T(z);P = P(w);
+
+
+
+
+
+%%%%FOR part 3, PLEASE SET ,alpha, Distype ,textweight, gamma ,T and P
+
+%3.KSVD / HOT under different \theta
+Rresult = [];
+normweight = 1;textweight  = 1;gamma = 0.1;T = 0.04;P = 5;
+method = 'N';Distype = [1];type = 'WP';
+theta = [200:200:1000];
+i = 0;acc = [];
+for i_theta = theta
+    i_theta
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,3, 'WP',T,gamma,textweight,1);
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,2, 'WP',T,gamma,textweight,1);
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,-3, 'WP',T,gamma,textweight,1);
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,-2, 'WP',T,gamma,textweight,1);
+end
+result = acc(1:2:end);
+[Mresult, ~] = max(result(:));
+Rresult = [Rresult, Mresult];
+
+result = acc(2:2:end);
+[Mresult, ~] = max(result(:));
+Rresult = [Rresult, Mresult];
+
+%4.overall performance
+normweight = 1;textweight  = 1;gamma = 0.1;T = 0.04;P = 1;
+method = 'N';Distype = [1];type = 'WP';
+theta = [200:200:1000];
+i = 0;acc = [];
+for i_theta = theta
+    i_theta
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,3, 'WP',T,gamma,textweight,1);
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,2, 'WP',T,gamma,textweight,1);
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,-3, 'WP',T,gamma,textweight,1);
+    i = i+1;acc(i) = get_acc(method,i_theta,alpha,P,Distype,-2, 'WP',T,gamma,textweight,1);
+end
+result = reshape(acc(1:1:end), [length(alpha), length(Distype)]);
+[Mresult, ~] = max(result(:));
+Rresult = [Rresult, Mresult];
+
+result = reshape(acc(1:2:end), [length(alpha), length(Distype)]);
+[Mresult, ~] = max(result(:));
+Rresult = [Rresult, Mresult];
