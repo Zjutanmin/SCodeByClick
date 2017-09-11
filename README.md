@@ -35,7 +35,21 @@ of the "bsxfun" function, earlier versions of Matlab will not work.
 
 
 2. Running the demo
-Go to the demo files '/path' to run the demo script:
+
+2.2 download dataset from
+
+https://pan.baidu.com/s/1mhPkmbI
+
+download data matrix and put them in "data' file directory under '/path'
+
+2.2 download text feature for queies from
+
+https://pan.baidu.com/s/1o7TjN8A
+
+download these text feature matrix and put them in "TextFea\image_click_Dog283_0_QueryFea\' file directory under '/path'
+
+
+3. Go to the demo files '/path' to run the demo script:
 
     >> demo
 

@@ -35,7 +35,9 @@ of the "bsxfun" function, earlier versions of Matlab will not work.
 
 
 2. Running the demo
+Go to the demo files '/path' to run the demo script:
 
+    >> demo
 
 
 
@@ -59,60 +61,99 @@ acc = get_acc(method,theta,alpha,P,i_Distype,cluster_method, type, T, gamma, tex
 %      alpha          = propagate ratio
 %      P              = parameter for determing dictionary size = N_k*P
 %      i_Distype        = similarity functions on distance
-%         1           : Sim = exp(-dist)
+%         1           : Sim = exp(-dist), default
 %         2           : Sim = 1./dist
 %         3           : dist = mapminmax(dist(:),0,1)  & sim = exp(-dist)
 %         4           : dist = mapminmax(dist(:),0,1)  & sim = 1./dist
 %      cluster_method = query clustering method
 %        1            : K-means
-%        2            : hot query+sparse coding 
-%        3            : KSVD+sparse coding
+%        2            : hot query + sparse coding 
+%        3            : KSVD + sparse coding
 %      type           = propagation type
 %        'WP'         : weighted propagation 
-%        'EP'         : evenly propagation
+%        'P'          : evenly propagation
 %      T              = number of zero-item in sparse code coefficiences
-%      gamma              
-%      , textweight,           
-%      normweight,              
-%      SetUsePGNc            
-       ,k_cluster_Q  
+%      gamma          = parameter for determing query cluster number
+%      textweight     = weight for text feature respect to click feature in query representation for roughly grouping     
+%      normweight     = normlization type
+          1           : L1 normalization, default
+%         2           : L2 normalization                
+%      SetUsePGNc     = query cluster number assignment
+          0           : N_k = k_cluster_Q
+%         1                      : N_k = N*gamma/P
+       k_cluster_Q   = pre-defined query cluster number, default value is 20
        
-       acc
+       acc            = Per-class accuracy
 
 
 
 QUERY MERGING
 --------
 IDX = mergeQ(sname, method,theta,alpha,P,Distype,cluster_method,type, T,gamma, textweight,normweight,k_cluster_Q)
-{
-	功能：将query合并，得到每个query的聚类结果IDX
-	mergeQ中的参数由get_acc传入，补充参数功能如下
-	
-	gamma:字典维度在总体样本中占到的比率
-	normweight:选择归一化方式，1为L1,2为L2
-	k_cluster_Q:相同LABEL聚类过程中，每个小类的数量上限	
-}
-
-关键函数Myclustering(temp_QueryFea,Keachone_query,i,cluster_method,gamma,P,theta,T, textweight,normweight,ClickCount)
-{
-	功能：聚类函数，通过cluster_method参数控制聚类方法获得相同LABEL类下的分类结果，从而降低数据维度
-	
-	temp_QueryFea:当前需要分类的数据块
-	Keachone_query:此类中的聚类个数，从mergeQ中引入
-	i：同上，控制聚类个数，作为Keachone_query的具体索引
-	textweight:控制文本特征在综合特征(文本相似度+点击特征)中的权重
-	ClickCount:中间变量，用于处理temp_QueryFea的分类问题
-}
-
-示例程序:demo:展示一些论文结果
+%      sname         = filename for storing results
+      method         = method for determing cluster number in each category
+%         N           : cluster number
+%         P           : sample number in each cluster
+%      theta          = parameter controlling cluster approach, when N>theta,sparse coding; while N<theta, K-means
+%      alpha          = propagate ratio
+%      P              = parameter for determing dictionary size = N_k*P
+%      Distype        = similarity functions on distance
+%         1           : Sim = exp(-dist), default
+%         2           : Sim = 1./dist
+%         3           : dist = mapminmax(dist(:),0,1)  & sim = exp(-dist)
+%         4           : dist = mapminmax(dist(:),0,1)  & sim = 1./dist
+%      cluster_method = query clustering method
+%        1            : K-means
+%        2            : hot query + sparse coding 
+%        3            : KSVD + sparse coding
+%      type           = propagation type
+%        'WP'         : weighted propagation 
+%        'P'          : evenly propagation
+%      T              = number of zero-item in sparse code coefficiences
+%      gamma          = parameter for determing query cluster number
+%      textweight     = weight for text feature respect to click feature in query representation for roughly grouping     
+%      normweight     = normlization type
+          1           : L1 normalization, default
+%         2           : L2 normalization                
+       k_cluster_Q   = pre-defined query cluster number, default value is 20
+       
+       IDX            = cluster index for each query
 
 
 CLICK PROPAGATION
 --------
 PropagatedVector_W = GetPropagate_W( OriginalVector, alpha, dist, clusterRange, Distype)
-
+%      OriginalVector = Original click feature
+%      alpha          = propagate ratio
+%      dist           = distance matrix
+%      Distype        = similarity functions on distance matrix
+%         1           : Sim = exp(-dist), default
+%         2           : Sim = 1./dist
+%         3           : dist = mapminmax(dist(:),0,1)  & sim = exp(-dist)
+%         4           : dist = mapminmax(dist(:),0,1)  & sim = 1./dist
+       clusterRange   = cluster 
+       
+       PropagatedVector_W= propagated click feature
 
 QUERY CLUSTERING BASED ON CLICK FEATURE
 --------
 [cluster_vector,cluster_idx_q] = Myclustering(temp_QueryFea,...
-    Keachone_query,i,cluster_method,gamma,P,theta,T, textweight,normweight,ClickCount)
+    Keachone_query,i,cluster_method,gamma,P,theta,T, textweight,normweight,ClickCount)   
+%      temp_QueryFea  = propagated click feature for queries in one category
+       Keachone_query = pre-defined query cluster number, default value is 20
+%      cluster_method = query clustering method
+%        1            : K-means
+%        2            : hot query + sparse coding 
+%        3            : KSVD + sparse coding
+%      gamma          = parameter for determing query cluster number
+%      P              = parameter for determing dictionary size = N_k*P
+       theta          = parameter controlling cluster approach, when N>theta,sparse coding; while N<theta, K-means
+%      T              = number of zero-item in sparse code coefficiences
+%      textweight     = weight for text feature respect to click feature in query representation for roughly grouping     
+%      normweight     = normlization type
+          1           : L1 normalization, default
+%         2           : L2 normalization                
+       ClickCount     = total click count for queries in one category
+       
+       cluster_vector = cluster center vector
+       cluster_idx_q  = cluster index for each queryPropagatedVector_W
